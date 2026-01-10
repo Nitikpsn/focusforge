@@ -2,48 +2,669 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>FocusForge</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FocusForge - Student Focus & Study Timer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --text-tertiary: #666666;
+            --accent: #ffffff;
+            --border: #333333;
+            --success: #4ade80;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .welcome-text {
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+
+        /* Stats Overview */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--border);
+            transition: border-color 0.2s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--text-tertiary);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-tertiary);
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-unit {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-left: 0.25rem;
+        }
+
+        .stat-description {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+
+        /* Focus Session Section */
+        .focus-section {
+            background: var(--bg-secondary);
+            border-radius: 24px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            border: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 2rem;
+            text-align: center;
+            letter-spacing: -0.5px;
+        }
+
+        .task-input-group {
+            margin-bottom: 2rem;
+        }
+
+        .input-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-tertiary);
+            margin-bottom: 0.75rem;
+            display: block;
+            font-weight: 500;
+        }
+
+        .task-input {
+            width: 100%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1.125rem;
+            padding: 1rem;
+            outline: none;
+            transition: all 0.2s ease;
+            font-weight: 300;
+        }
+
+        .task-input:focus {
+            border-color: var(--text-secondary);
+            background: var(--bg-primary);
+        }
+
+        .task-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        /* Timer Display */
+        .timer-display {
+            text-align: center;
+            margin: 3rem 0;
+        }
+
+        .timer-time {
+            font-size: 6rem;
+            font-weight: 300;
+            letter-spacing: -3px;
+            font-variant-numeric: tabular-nums;
+            margin-bottom: 1rem;
+        }
+
+        .timer-status {
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .timer-status.active {
+            color: var(--success);
+        }
+
+        /* Session Settings */
+        .session-settings {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .duration-selector {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--bg-tertiary);
+            padding: 0.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .duration-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .duration-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .duration-btn.active {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        /* Timer Controls */
+        .timer-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--text-tertiary);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-color: var(--accent);
+        }
+
+        .btn-primary:hover {
+            background: var(--text-secondary);
+            border-color: var(--text-secondary);
+        }
+
+        .btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .btn:disabled:hover {
+            background: transparent;
+            border-color: var(--border);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding: 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-text {
+            font-size: 0.8125rem;
+            color: var(--text-tertiary);
+            font-style: italic;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-tagline {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            font-weight: 300;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .dashboard-title {
+                font-size: 2rem;
+            }
+
+            .timer-time {
+                font-size: 4rem;
+            }
+
+            .focus-section {
+                padding: 2rem 1.5rem;
+            }
+
+            .timer-controls {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .stats-overview {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-container {
+                padding: 2rem 1rem;
+            }
+
+            .timer-time {
+                font-size: 3rem;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">FocusForge</div>
+            <div class="nav-links">
+                <a href="#" class="nav-link">Dashboard</a>
+                <a href="#" class="nav-link">Settings</a>
+                <a href="#" class="nav-link">Logout</a>
+            </div>
+        </div>
+    </nav>
 
-    <header class="navbar">
-        <div class="logo">FocusForge</div>
-        <nav>
-            <a href="#">Dashboard</a>
-            <a href="#">Focus</a>
-            <a href="#">Progress</a>
-        </nav>
-    </header>
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <div class="welcome-text">Welcome Back</div>
+            <h1 class="dashboard-title">Your Focus Dashboard</h1>
+            <p class="dashboard-subtitle">Turn distraction into discipline</p>
+        </div>
 
-    <main class="container">
-        <section class="hero">
-            <h1>Build deep focus,<br>one session at a time.</h1>
-            <p>FocusForge helps you eliminate distraction, track effort, and improve daily.</p>
-            <button class="primary-btn">Start Focus Session</button>
-        </section>
-
-        <section class="grid">
-            <div class="card">
-                <h3>Today’s Focus</h3>
-                <p>No active task.</p>
-                <span class="muted">Define one clear goal and begin.</span>
+        <!-- Stats Overview -->
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="stat-label">Today's Focus Time</div>
+                <div class="stat-value">
+                    <span id="todayFocus">0</span><span class="stat-unit">min</span>
+                </div>
+                <div class="stat-description">Time spent in deep work today</div>
             </div>
 
-            <div class="card">
-                <h3>Focus Time</h3>
-                <p>0 minutes</p>
-                <span class="muted">Consistency beats intensity.</span>
+            <div class="stat-card">
+                <div class="stat-label">Total Study Time</div>
+                <div class="stat-value">
+                    <span id="totalTime">0</span><span class="stat-unit">hrs</span>
+                </div>
+                <div class="stat-description">All-time focused learning</div>
             </div>
 
-            <div class="card">
-                <h3>Streak</h3>
-                <p>Day 0</p>
-                <span class="muted">Show up every day.</span>
+            <div class="stat-card">
+                <div class="stat-label">Current Streak</div>
+                <div class="stat-value">
+                    <span id="streakCount">0</span><span class="stat-unit">days</span>
+                </div>
+                <div class="stat-description">Consecutive days of focus</div>
             </div>
-        </section>
-    </main>
+        </div>
 
+        <!-- Focus Session Section -->
+        <div class="focus-section">
+            <h2 class="section-title">Start a Focus Session</h2>
+
+            <!-- Task Input -->
+            <div class="task-input-group">
+                <label class="input-label" for="taskInput">What are you studying?</label>
+                <input 
+                    type="text" 
+                    class="task-input" 
+                    id="taskInput"
+                    placeholder="e.g., Mathematics Chapter 5, React Tutorial, Essay Writing..."
+                >
+            </div>
+
+            <!-- Session Duration Selection -->
+            <div class="session-settings">
+                <div class="duration-selector">
+                    <button class="duration-btn" data-duration="25">25 min</button>
+                    <button class="duration-btn active" data-duration="45">45 min</button>
+                    <button class="duration-btn" data-duration="60">60 min</button>
+                    <button class="duration-btn" data-duration="90">90 min</button>
+                </div>
+            </div>
+
+            <!-- Timer Display -->
+            <div class="timer-display">
+                <div class="timer-time" id="timerDisplay">45:00</div>
+                <div class="timer-status" id="timerStatus">Ready to focus</div>
+            </div>
+
+            <!-- Timer Controls -->
+            <div class="timer-controls">
+                <button class="btn btn-primary" id="startBtn">Start Session</button>
+                <button class="btn" id="pauseBtn" style="display: none;">Pause</button>
+                <button class="btn" id="resetBtn" style="display: none;">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p class="footer-text">"FocusForge is not just a tool, it's a system to help students respect their time, train their focus, and grow steadily every day."</p>
+        <p class="footer-tagline">Built for students and self-learners</p>
+    </footer>
+
+    <script>
+        // Timer state
+        let timer = null;
+        let timeLeft = 45 * 60; // Default 45 minutes in seconds
+        let selectedDuration = 45;
+        let isRunning = false;
+        let isPaused = false;
+        let todayFocusMinutes = 0;
+        let totalHours = 0;
+        let currentStreak = 0;
+
+        // DOM elements
+        const timerDisplay = document.getElementById('timerDisplay');
+        const timerStatus = document.getElementById('timerStatus');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const durationBtns = document.querySelectorAll('.duration-btn');
+        const taskInput = document.getElementById('taskInput');
+        const todayFocusEl = document.getElementById('todayFocus');
+        const totalTimeEl = document.getElementById('totalTime');
+        const streakEl = document.getElementById('streakCount');
+
+        // Load saved data from localStorage (simulating backend data)
+        function loadData() {
+            const saved = localStorage.getItem('focusforge_data');
+            if (saved) {
+                const data = JSON.parse(saved);
+                todayFocusMinutes = data.todayFocus || 0;
+                totalHours = data.totalHours || 0;
+                currentStreak = data.streak || 0;
+                updateStatsDisplay();
+            }
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            const data = {
+                todayFocus: todayFocusMinutes,
+                totalHours: totalHours,
+                streak: currentStreak,
+                lastSessionDate: new Date().toDateString()
+            };
+            localStorage.setItem('focusforge_data', JSON.stringify(data));
+        }
+
+        // Update stats display
+        function updateStatsDisplay() {
+            todayFocusEl.textContent = todayFocusMinutes;
+            totalTimeEl.textContent = totalHours.toFixed(1);
+            streakEl.textContent = currentStreak;
+        }
+
+        // Format time for display
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Update timer display
+        function updateDisplay() {
+            timerDisplay.textContent = formatTime(timeLeft);
+        }
+
+        // Update timer status
+        function updateStatus(status, active = false) {
+            timerStatus.textContent = status;
+            if (active) {
+                timerStatus.classList.add('active');
+            } else {
+                timerStatus.classList.remove('active');
+            }
+        }
+
+        // Start timer
+        function startTimer() {
+            const task = taskInput.value.trim();
+            if (!task) {
+                alert('Please enter what you\'re studying before starting a session.');
+                taskInput.focus();
+                return;
+            }
+
+            if (!isRunning) {
+                isRunning = true;
+                isPaused = false;
+                startBtn.style.display = 'none';
+                pauseBtn.style.display = 'inline-block';
+                resetBtn.style.display = 'inline-block';
+                updateStatus('Focusing...', true);
+
+                // Disable task input and duration selection during session
+                taskInput.disabled = true;
+                durationBtns.forEach(btn => btn.disabled = true);
+
+                timer = setInterval(() => {
+                    if (timeLeft > 0) {
+                        timeLeft--;
+                        updateDisplay();
+                    } else {
+                        completeSession();
+                    }
+                }, 1000);
+            }
+        }
+
+        // Pause timer
+        function pauseTimer() {
+            if (isRunning) {
+                isRunning = false;
+                isPaused = true;
+                clearInterval(timer);
+                startBtn.textContent = 'Resume';
+                startBtn.style.display = 'inline-block';
+                pauseBtn.style.display = 'none';
+                updateStatus('Paused');
+            }
+        }
+
+        // Reset timer
+        function resetTimer() {
+            isRunning = false;
+            isPaused = false;
+            clearInterval(timer);
+            timeLeft = selectedDuration * 60;
+            updateDisplay();
+            startBtn.textContent = 'Start Session';
+            startBtn.style.display = 'inline-block';
+            pauseBtn.style.display = 'none';
+            resetBtn.style.display = 'none';
+            updateStatus('Ready to focus');
+
+            // Re-enable inputs
+            taskInput.disabled = false;
+            durationBtns.forEach(btn => btn.disabled = false);
+        }
+
+        // Complete session
+        function completeSession() {
+            clearInterval(timer);
+            isRunning = false;
+
+            // Update statistics
+            todayFocusMinutes += selectedDuration;
+            totalHours += selectedDuration / 60;
+            currentStreak += 1; // In production, this would check dates properly
+
+            updateStatsDisplay();
+            saveData();
+            resetTimer();
+
+            // Show completion message
+            alert(`🎉 Focus session complete!\n\nYou studied for ${selectedDuration} minutes.\nGreat work building your discipline!`);
+
+            // Clear task input for next session
+            taskInput.value = '';
+        }
+
+        // Duration selection
+        durationBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (!isRunning && !btn.disabled) {
+                    durationBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    selectedDuration = parseInt(btn.dataset.duration);
+                    timeLeft = selectedDuration * 60;
+                    updateDisplay();
+                }
+            });
+        });
+
+        // Event listeners
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resetBtn.addEventListener('click', resetTimer);
+
+        // Initialize
+        loadData();
+        updateDisplay();
+        updateStatus('Ready to focus');
+    </script>
 </body>
 </html>
