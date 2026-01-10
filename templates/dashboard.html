@@ -1,8 +1,49 @@
-<html>
-<body>
-    <title>Nitik</title>
-</body>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <h1>Nitik</h1>
+    <meta charset="UTF-8">
+    <title>FocusForge</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+<body>
+
+    <header class="navbar">
+        <div class="logo">FocusForge</div>
+        <nav>
+            <a href="#">Dashboard</a>
+            <a href="#">Focus</a>
+            <a href="#">Progress</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1>Build deep focus,<br>one session at a time.</h1>
+            <p>FocusForge helps you eliminate distraction, track effort, and improve daily.</p>
+            <button class="primary-btn">Start Focus Session</button>
+        </section>
+
+        <section class="grid">
+            <div class="card">
+                <h3>Today’s Focus</h3>
+                <p>No active task.</p>
+                <span class="muted">Define one clear goal and begin.</span>
+            </div>
+
+            <div class="card">
+                <h3>Focus Time</h3>
+                <p>0 minutes</p>
+                <span class="muted">Consistency beats intensity.</span>
+            </div>
+
+            <div class="card">
+                <h3>Streak</h3>
+                <p>Day 0</p>
+                <span class="muted">Show up every day.</span>
+            </div>
+        </section>
+    </main>
+
+</body>
 </html>
